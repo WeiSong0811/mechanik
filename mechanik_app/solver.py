@@ -39,19 +39,39 @@ def shear_moment(
 
 
 def integrate_deflection(
-    x: np.ndarray, moment: np.ndarray, youngs: float, inertia: float
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    x: np.ndarray,
+    moment: np.ndarray,
+    shear: np.ndarray,
+    youngs: float,
+    inertia: float,
+    area: float,
+    shear_modulus: float,
+    shear_coeff: float,
+    theory: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     curvature = moment / (youngs * inertia)
-    slope = np.zeros_like(curvature)
+    rotation = np.zeros_like(curvature)
     deflection = np.zeros_like(curvature)
+    shear_gamma = np.zeros_like(shear)
+    if theory.lower().startswith("timo"):
+        shear_gamma = shear / (shear_coeff * shear_modulus * area)
+
     for i in range(1, len(x)):
         dx = x[i] - x[i - 1]
-        slope[i] = slope[i - 1] + 0.5 * (curvature[i] + curvature[i - 1]) * dx
-        deflection[i] = deflection[i - 1] + 0.5 * (slope[i] + slope[i - 1]) * dx
-    return curvature, slope, deflection
+        rotation[i] = rotation[i - 1] + 0.5 * (curvature[i] + curvature[i - 1]) * dx
+        slope_component = rotation
+        if theory.lower().startswith("timo"):
+            slope_component = rotation + shear_gamma
+        deflection[i] = deflection[i - 1] + 0.5 * (
+            slope_component[i] + slope_component[i - 1]
+        ) * dx
+
+    return curvature, rotation, deflection, shear_gamma
 
 
-def stress_field(moment: np.ndarray, section_height: float, inertia: float, points: int = 120):
+def stress_field(
+    moment: np.ndarray, section_height: float, inertia: float, points: int = 120
+) -> Tuple[np.ndarray, np.ndarray]:
     if section_height <= 0 or inertia <= 0:
         return np.array([0.0]), np.zeros((1, len(moment)))
     y = np.linspace(-section_height / 2, section_height / 2, points)

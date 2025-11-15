@@ -1,7 +1,13 @@
 """Core modules for the Streamlit beam simulator."""
 
 from .materials import Material, Section, build_section
-from .loads import DEFAULT_POINT_LOADS, point_loads_from_editor, uniform_profile
+from .loads import (
+    DEFAULT_POINT_LOADS,
+    DEFAULT_SEGMENT_LOADS,
+    point_loads_from_editor,
+    segmented_profile,
+    uniform_profile,
+)
 from .solver import (
     cumulative_trapezoid,
     discretize,
@@ -9,14 +15,16 @@ from .solver import (
     shear_moment,
     stress_field,
 )
-from .plots import plot_deformation, plot_heatmap, plot_loads
+from .plots import plot_deformation, plot_heatmap, plot_loads, plot_section
 
 __all__ = [
     "Material",
     "Section",
     "build_section",
     "DEFAULT_POINT_LOADS",
+    "DEFAULT_SEGMENT_LOADS",
     "point_loads_from_editor",
+    "segmented_profile",
     "uniform_profile",
     "discretize",
     "cumulative_trapezoid",
@@ -26,4 +34,5 @@ __all__ = [
     "plot_loads",
     "plot_deformation",
     "plot_heatmap",
+    "plot_section",
 ]

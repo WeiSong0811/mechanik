@@ -23,6 +23,8 @@ class Section:
     area: float  # m^2
     inertia: float  # m^4
     height: float  # m
+    shape: str
+    dimensions: Dict[str, float]  # mm
 
 
 def build_section(shape: str, dims: Dict[str, float]) -> Section:
@@ -36,26 +38,26 @@ def build_section(shape: str, dims: Dict[str, float]) -> Section:
         tw = dims["腹板厚"] * mm_to_m
         area = 2 * bf * tf + (h - 2 * tf) * tw
         inertia = (bf * h**3 - (bf - tw) * (h - 2 * tf) ** 3) / 12
-        return Section("工字钢", area, inertia, h)
+        return Section("工字钢", area, inertia, h, shape="工字钢", dimensions=dict(dims))
 
     if shape == "矩形钢":
         b = dims["宽"] * mm_to_m
         h = dims["高"] * mm_to_m
         area = b * h
         inertia = b * h**3 / 12
-        return Section("矩形钢", area, inertia, h)
+        return Section("矩形钢", area, inertia, h, shape="矩形钢", dimensions=dict(dims))
 
     if shape == "方钢管":
         b = dims["外宽"] * mm_to_m
         t = dims["壁厚"] * mm_to_m
         area = b**2 - (b - 2 * t) ** 2
         inertia = (b**4 - (b - 2 * t) ** 4) / 12
-        return Section("方钢管", area, inertia, b)
+        return Section("方钢管", area, inertia, b, shape="方钢管", dimensions=dict(dims))
 
     if shape == "圆钢":
         d = dims["直径"] * mm_to_m
         area = np.pi * d**2 / 4
         inertia = np.pi * d**4 / 64
-        return Section("圆钢", area, inertia, d)
+        return Section("圆钢", area, inertia, d, shape="圆钢", dimensions=dict(dims))
 
     raise ValueError("未知截面类型")
